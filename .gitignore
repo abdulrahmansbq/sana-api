@@ -2,3 +2,4 @@
 .idea
 storage/chroma/*
 !storage/chroma/.gitkeep
+__pycache__
