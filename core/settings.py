@@ -18,3 +18,5 @@ class Settings(BaseSettings):
     WATSONX_SPACE_ID: str = os.environ.get("WATSONX_SPACE_ID")
     STORAGE_PATH: str = os.environ.get("STORAGE_PATH")
     PROMPTS_PATH: str = os.environ.get("PROMPTS_PATH")
+    LARAVEL_ENDPOINT: str = os.environ.get("LARAVEL_ENDPOINT")
+    LARAVEL_API_KEY: str = os.environ.get("LARAVEL_API_KEY")
