@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from v1.endpoints import videos, chats
+from v1.endpoints import videos, chats, snaps
 
 router = APIRouter(
     prefix="/v1",
@@ -9,3 +9,5 @@ router = APIRouter(
 
 router.include_router(videos.router)
 router.include_router(chats.router)
+
+router.include_router(snaps.router)
