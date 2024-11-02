@@ -1,7 +1,5 @@
-import httpx
 from langchain_ibm import WatsonxLLM
-import json
-from jsonschema import validate
+from core.services.chunking_service import ChunkingService
 from core.services.snapping_service import SnappingService
 from core.settings import Settings
 
@@ -41,7 +39,7 @@ class SnapController:
 
         snapping_service = SnappingService()
 
-        docs = snapping_service.chunkify_text(self.transcript)
+        docs = ChunkingService().chunkify_text(transcript=self.transcript, chunking_mode=ChunkingService.CHUNKING_FROM_TEXT)
 
         for doc in docs:
             prompt = snapping_service.get_prompt(doc.page_content)
@@ -50,37 +48,8 @@ class SnapController:
             if not snaps:
                 continue
 
-            with httpx.Client() as client:
-                client.post(
-                    settings.LARAVEL_ENDPOINT+"/api/snaps/store",
-                    json={
-                        "namespace_id": self.namespace_id,
-                        "type": self.namespace_type,
-                        "summary": snaps
-                    },
-                    headers={
-                        "Authorization": "Bearer "+settings.LARAVEL_API_KEY
-                    }
-                    )
+            if not snapping_service.validate_json(snaps):
+                continue
+
+            snapping_service.send_to_frontend(snaps=snaps, namespace_id=self.namespace_id, namespace_type=self.namespace_type)
         return "Snaps generated successfully"
-
-    def _validate_json(self, data):
-        schema = {
-            "type": "object",
-            "properties": {
-                "sentences": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "minItems": 1  # You can adjust the minimum number of items if needed
-                }
-            },
-            "required": ["sentences"]
-        }
-        try:
-            loaded_data = json.loads(data)
-        except json.JSONDecodeError:
-            return False
-
-        if not validate(loaded_data, schema):
-            return False
-        return loaded_data
