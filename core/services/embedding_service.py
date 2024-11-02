@@ -2,10 +2,9 @@ from uuid import uuid4
 
 import chromadb
 from langchain_chroma import Chroma
-from langchain_community.document_loaders import TextLoader
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+from core.services.chunking_service import ChunkingService
 from core.settings import Settings
 
 settings = Settings()
@@ -36,23 +35,10 @@ class EmbeddingService:
             embedding_function=self.embeddings_model,
         )
 
-        docs = self._chunkify_text(text_file)
+        docs = ChunkingService().chunkify_text(transcript_file=text_file, chunk_size=400, chunk_overlap=100)
         uuids = [str(uuid4()) for _ in range(len(docs))]
 
         chroma_client.add_documents(documents=docs, ids=uuids)
-
-    def _chunkify_text(self, text):
-        """
-        Chunkifies the text
-
-        :param text:
-        :return:
-        """
-
-        loader = TextLoader(text)
-        documents = loader.load()
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=100)
-        return text_splitter.split_documents(documents)
 
     def embed_query(self, query: str):
         """
