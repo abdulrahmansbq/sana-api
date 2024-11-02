@@ -1,5 +1,5 @@
 fastapi[standard]~=0.115.4
-httpx
+httpx~=0.27.2
 langchain_core
 pydantic_settings
 python-dotenv~=1.0.1
@@ -21,6 +21,9 @@ git+https://github.com/openai/whisper.git
 langchain-community~=0.3.3
 langchain-text-splitters~=0.3.1
 yt-dlp~=2024.10.22
-openai-whisper
+openai-whisper~=20240930
 pydantic-settings~=2.6.0
 langchain-chroma
+langchain-core~=0.3.13
+pydantic~=2.9.2
+jsonschema~=4.23.0
