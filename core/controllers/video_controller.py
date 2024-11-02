@@ -1,4 +1,5 @@
 import chromadb
+import httpx
 from chromadb.errors import InvalidCollectionException
 from core.exceptions.downloading_exception import DownloadingException
 from core.exceptions.embedding_exception import EmbeddingException
@@ -41,11 +42,18 @@ class VideoController:
         try:
             audio_file = DownloadingService(self.video_id).download()
 
+            self._update_frontend_status("downloaded")
+
             transcript = TranscribingService(audio_file=audio_file, file_name=self.video_id).transcribe()
+
+            self._update_frontend_status("transcribed")
 
             EmbeddingService().embed_transcript(chrome_client=self.chroma_client, namespace_id=self.video_id, text_file=transcript)
 
+            self._update_frontend_status("completed")
+
         except DownloadingException|EmbeddingException|TranscribingException as e:
+            self._update_frontend_status("failed")
             return {"status": "Error", "message": e}
 
         self._cleanup()
@@ -55,3 +63,21 @@ class VideoController:
     def _cleanup(self):
         os.remove(settings.STORAGE_PATH + "temp/" + self.video_id + ".txt")
         os.remove(settings.STORAGE_PATH + "temp/" + self.video_id + ".mp3")
+
+
+    def _update_frontend_status(self,status):
+        """
+        Notifies the frontend
+
+        :return:
+        """
+        with httpx.Client() as client:
+            response = client.post(
+                settings.LARAVEL_ENDPOINT+"/api/videos/"+self.video_id+"/status",
+                json={
+                    "status": status,
+                },
+                headers={
+                    "Authorization": "Bearer "+settings.LARAVEL_API_KEY
+                }
+            )
