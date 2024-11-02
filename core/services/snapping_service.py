@@ -1,7 +1,8 @@
-from langchain_core.documents import Document
-from langchain_core.output_parsers import JsonOutputParser
+import json
+import httpx
+from jsonschema.exceptions import ValidationError
+from jsonschema.validators import validate
 from langchain_core.prompts import PromptTemplate
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from core.settings import Settings
 
 settings = Settings()
@@ -10,18 +11,6 @@ settings = Settings()
 class SnappingService:
     def __init__(self):
         pass
-
-    def chunkify_text(self, transcript):
-        """
-        Generates the snaps
-
-        :return:
-        """
-
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
-        docs = [Document(page_content=x) for x in text_splitter.split_text(transcript)]
-
-        return docs
 
 
 
@@ -39,10 +28,47 @@ class SnappingService:
 
         template = PromptTemplate.from_template(prompt)
 
-        parser = JsonOutputParser(pydantic_object=SnapFormatter)
-
         processed_prompt = template.format(context=context,json_format='{{\n"sentences": ["summary sentence 1", "summary sentence 2", "summary sentence 3", ...]\n}}')
 
         print(processed_prompt)
 
         return processed_prompt
+
+
+    def validate_json(self, data):
+        schema = {
+            "type": "object",
+            "properties": {
+                "sentences": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "minItems": 1  # You can adjust the minimum number of items if needed
+                }
+            },
+            "required": ["sentences"]
+        }
+        try:
+            loaded_data = json.loads(data)
+        except json.JSONDecodeError:
+            return False
+
+        try:
+            validate(instance=loaded_data, schema=schema)
+            return loaded_data
+        except ValidationError as e:
+            return False
+
+
+    def send_to_frontend(self, namespace_id, namespace_type, snaps):
+        with httpx.Client() as client:
+            client.post(
+                settings.LARAVEL_ENDPOINT+"/api/snaps/store",
+                json={
+                    "namespace_id": namespace_id,
+                    "type": namespace_type,
+                    "snaps": snaps
+                },
+                headers={
+                    "Authorization": "Bearer "+settings.LARAVEL_API_KEY
+                }
+            )
