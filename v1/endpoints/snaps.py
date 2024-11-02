@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Form
-from core.controllers.chat_controller import ChatController
 from core.controllers.snap_controller import SnapController
 
 router = APIRouter(
