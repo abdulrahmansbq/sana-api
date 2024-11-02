@@ -7,16 +7,14 @@ settings = Settings()
 
 
 class TranscribingService:
-    TRANSCRIPT_MODE_STORE = 1
-    TRANSCRIPT_MODE_RETURN = 2
-
-
+    TRANSCRIBING_MODE_STORE = 1
+    TRANSCRIBING_MODE_RETURN = 2
 
     def __init__(
             self,
             audio_file: str,
             file_name: str = None,
-            mode = TRANSCRIPT_MODE_STORE
+            mode = TRANSCRIBING_MODE_STORE
     ):
         self.audio_file = audio_file
         self.mode = mode
@@ -44,7 +42,7 @@ class TranscribingService:
         whisper_client = whisper.load_model(settings.WHISPER_MODEL, device=settings.WHISPER_DEVICE)
         result = whisper_client.transcribe(self.audio_file)
         transcript = result["text"]
-        if self.mode == self.TRANSCRIPT_MODE_STORE:
+        if self.mode == self.TRANSCRIBING_MODE_STORE:
             return self._store_in_text(transcript)
         return transcript
 
