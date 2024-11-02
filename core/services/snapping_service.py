@@ -2,9 +2,6 @@ from langchain_core.documents import Document
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-from core.formatters.snap_formatter import SnapFormatter
-from core.services.embedding_service import EmbeddingService
 from core.settings import Settings
 
 settings = Settings()
