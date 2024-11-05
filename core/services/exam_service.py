@@ -33,7 +33,6 @@ class ExamService:
             json_format='[\n{\n"question": "السؤال",\n"A": "الخيار الأول",\n"B": "الخيار الثاني",\n"C": "الخيار الثالث",\n"D": "الخيار الرابع",\n"answer": "A, B, C, or D"\n},\n\n]'
         )
 
-        print(processed_prompt)
 
         return processed_prompt
 
@@ -68,7 +67,7 @@ class ExamService:
             return False
 
     def send_to_frontend(self, namespace_id, namespace_type, questions):
-        with httpx.Client() as client:
+        with httpx.Client(verify=False) as client:
             client.post(
                 settings.LARAVEL_ENDPOINT+"/api/questions/store",
                 json={

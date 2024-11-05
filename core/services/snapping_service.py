@@ -1,8 +1,10 @@
 import json
+
 import httpx
 from jsonschema.exceptions import ValidationError
 from jsonschema.validators import validate
 from langchain_core.prompts import PromptTemplate
+
 from core.settings import Settings
 
 settings = Settings()
@@ -11,8 +13,6 @@ settings = Settings()
 class SnappingService:
     def __init__(self):
         pass
-
-
 
     def get_prompt(self, context):
         """
@@ -28,12 +28,14 @@ class SnappingService:
 
         template = PromptTemplate.from_template(prompt)
 
-        processed_prompt = template.format(context=context,json_format='{{\n"sentences": ["summary sentence 1", "summary sentence 2", "summary sentence 3", ...]\n}}')
+        processed_prompt = template.format(
+            context=context,
+            json_format='{{\n"sentences": ["summary sentence 1", "summary sentence 2", "summary sentence 3", ...]\n}}',
+        )
 
-        print(processed_prompt)
+        # print(processed_prompt)
 
         return processed_prompt
-
 
     def validate_json(self, data):
         schema = {
@@ -42,10 +44,10 @@ class SnappingService:
                 "sentences": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "minItems": 1  # You can adjust the minimum number of items if needed
+                    "minItems": 1,  # You can adjust the minimum number of items if needed
                 }
             },
-            "required": ["sentences"]
+            "required": ["sentences"],
         }
         try:
             loaded_data = json.loads(data)
@@ -58,17 +60,15 @@ class SnappingService:
         except ValidationError as e:
             return False
 
-
     def send_to_frontend(self, namespace_id, namespace_type, snaps):
-        with httpx.Client() as client:
+        with httpx.Client(verify=False) as client:
             client.post(
-                settings.LARAVEL_ENDPOINT+"/api/snaps/store",
+                settings.LARAVEL_ENDPOINT + "/api/snaps",
                 json={
                     "namespace_id": namespace_id,
                     "type": namespace_type,
-                    "snaps": snaps
+                    "snaps": snaps,
                 },
-                headers={
-                    "Authorization": "Bearer "+settings.LARAVEL_API_KEY
-                }
+                headers={"Authorization": "Bearer " + settings.LARAVEL_API_KEY},
             )
+        
