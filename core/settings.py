@@ -1,9 +1,10 @@
-from pydantic_settings import BaseSettings
 import os
-from os.path import join, dirname
-from dotenv import load_dotenv
+from os.path import dirname, join
 
-dotenv_path = join(dirname(__file__), '..', '.env')
+from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
+
+dotenv_path = join(dirname(__file__), "..", ".env")
 load_dotenv(dotenv_path)
 
 
@@ -20,3 +21,4 @@ class Settings(BaseSettings):
     PROMPTS_PATH: str = os.environ.get("PROMPTS_PATH")
     LARAVEL_ENDPOINT: str = os.environ.get("LARAVEL_ENDPOINT")
     LARAVEL_API_KEY: str = os.environ.get("LARAVEL_API_KEY")
+    OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")

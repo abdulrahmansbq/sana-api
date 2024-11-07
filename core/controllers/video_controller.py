@@ -38,28 +38,31 @@ class VideoController:
             pass
 
         try:
+            # sub string first 3 letters and replace with empty string
+            # video_id = self.video_id[3:].replace("/", "")
+   
             audio_file = DownloadingService(self.video_id).download()
-            
             self._update_frontend_status("downloaded")
-           
-            transcript = TranscribingService(
-                audio_file=audio_file, file_name=self.video_id
-            ).transcribe()
+
+            # print(audio_file)
+            transcript_file = TranscribingService(
+                audio_file=audio_file,
+                file_name=self.video_id,
+            ).transcribe(service_provider="whisper-api")
+
+            opened_transcript = open(transcript_file, "r")
+            saved_transcript = opened_transcript.read()
+            opened_transcript.close()
 
             self._update_frontend_status("transcribed")
-            
+
             EmbeddingService().embed_transcript(
                 chrome_client=self.chroma_client,
                 namespace_id=self.video_id,
-                text_file=transcript,
+                text_file=transcript_file,
             )
 
-            mode = TranscribingService.TRANSCRIBING_MODE_RETURN
-            transcription = TranscribingService(
-                audio_file=audio_file, file_name=self.video_id, mode=mode
-            ).transcribe()
-            self._update_frontend_status("completed", transcription)
-            
+            self._update_frontend_status("completed", saved_transcript)
 
         except DownloadingException | EmbeddingException | TranscribingException as e:
             self._update_frontend_status("failed")
@@ -88,4 +91,3 @@ class VideoController:
                 },
                 headers={"Authorization": "Bearer " + settings.LARAVEL_API_KEY},
             )
-            
