@@ -49,7 +49,7 @@ class ChatService:
         :return: Combined context as a single string
         """
 
-        results = self.chroma_client.similarity_search_by_vector(embedded_question, k=3)
+        results = self.chroma_client.similarity_search_by_vector(embedded_question, k=1)
 
         context = " \n ".join(res.page_content for res in results)
 

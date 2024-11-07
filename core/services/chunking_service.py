@@ -19,7 +19,7 @@ class ChunkingService:
             self,
             transcript_file = None,
             transcript = None,
-            chunk_size = 500,
+            chunk_size = 1000,
             chunk_overlap = 100,
             chunking_mode = CHUNKING_FROM_FILE
     ):
