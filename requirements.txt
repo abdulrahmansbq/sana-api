@@ -27,3 +27,4 @@ langchain-chroma
 langchain-core~=0.3.13
 pydantic~=2.9.2
 jsonschema~=4.23.0
+openai==0.28

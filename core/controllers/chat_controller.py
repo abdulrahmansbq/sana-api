@@ -24,9 +24,8 @@ class ChatController:
         )
 
     async def chat(self):
-
         try:
-            self.chroma_client.get_collection(self.namespace)
+            self.chroma_client.get_collection("yt-"+self.namespace)
         except InvalidCollectionException:
             return {"status": "Error", "message": "Namespace does not exist"}
 

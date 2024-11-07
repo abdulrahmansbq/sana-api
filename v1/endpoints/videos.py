@@ -12,6 +12,6 @@ router = APIRouter(
 @router.get("/{video_id}/embed")
 async def embed(video_id: str, response: Response):
     # "yt-"+
-    video = VideoController(video_id, response)
+    video = VideoController("yt-" + video_id, response)
     response = await video.embed()
     return response

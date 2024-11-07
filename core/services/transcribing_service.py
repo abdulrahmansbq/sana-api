@@ -74,7 +74,7 @@ class TranscribingService:
         """
         print(content)
         with open(
-            settings.STORAGE_PATH + "temp/" + self.file_name + ".txt", "w"
+            settings.STORAGE_PATH + "temp/" + self.file_name[3:].replace("/", "")+ ".txt", "w"
         ) as text_file:
             text_file.write(content)
-        return settings.STORAGE_PATH + "temp/" + self.file_name + ".txt"
+        return settings.STORAGE_PATH + "temp/" + self.file_name[3:].replace("/", "") + ".txt"

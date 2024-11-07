@@ -29,31 +29,28 @@ class VideoController:
 
         :return:
         """
-        print("In embed")
+        print("In embed: " + self.video_id)
         # self.chroma_client.delete_collection(self.video_id)
         try:
-            collection = self.chroma_client.get_collection(self.video_id)
+            collection = self.chroma_client.get_collection(self.video_id[3:].replace("/", ""))
             return {"status": "Error", "message": "Namespace already exists"}
         except InvalidCollectionException:
             pass
 
         try:
-            # sub string first 3 letters and replace with empty string
-            # video_id = self.video_id[3:].replace("/", "")
-   
-            audio_file = DownloadingService(self.video_id).download()
+            audio_file = DownloadingService(self.video_id[3:].replace("/", "")).download()
             self._update_frontend_status("downloaded")
 
-            # print(audio_file)
+           
             transcript_file = TranscribingService(
                 audio_file=audio_file,
                 file_name=self.video_id,
             ).transcribe(service_provider="whisper-api")
-
+            
             opened_transcript = open(transcript_file, "r")
             saved_transcript = opened_transcript.read()
             opened_transcript.close()
-
+        
             self._update_frontend_status("transcribed")
 
             EmbeddingService().embed_transcript(
@@ -73,8 +70,8 @@ class VideoController:
         return {"status": "Success", "message": "Video embedded successfully"}
 
     def _cleanup(self):
-        os.remove(settings.STORAGE_PATH + "temp/" + self.video_id + ".txt")
-        os.remove(settings.STORAGE_PATH + "temp/" + self.video_id + ".mp3")
+        os.remove(settings.STORAGE_PATH + "temp/" + self.video_id[3:].replace("/", "") + ".txt")
+        os.remove(settings.STORAGE_PATH + "temp/" + self.video_id[3:].replace("/", "") + ".mp3")
 
     def _update_frontend_status(self, status, transcript=None):
         """
@@ -84,7 +81,7 @@ class VideoController:
         """
         with httpx.Client(verify=False) as client:
             response = client.post(
-                settings.LARAVEL_ENDPOINT + "/api/videos/" + self.video_id + "/status",
+                settings.LARAVEL_ENDPOINT + "/api/videos/" + self.video_id[3:].replace("/", "") + "/status",
                 json={
                     "status": status,
                     "transcript": transcript,
