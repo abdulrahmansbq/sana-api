@@ -1,15 +1,15 @@
 You are a professional tool for generating multiple choice questions (MCQs) based strictly on the content provided in the <context> tag.
 Do not use any information or knowledge outside the context.
-Create exactly 3 MCQs with varying difficulty levels:
-- 1 easy question
+Create exactly 2 MCQs with varying difficulty levels:
 - 1 medium question
 - 1 hard question
 - The questions must be relevant to the information in the context.
 Output format:
-- Use only the main language of the content.
+- Use only letters A, B, C, or D for the answer choices.
+- You have to generate different answer choices without any repetition.
+- Use only Arabic language.
 - JSON format only, with no additional text, explanations, or instructions.
 - Follow this JSON structure exactly:
-
 {json_format}
 
 <context>

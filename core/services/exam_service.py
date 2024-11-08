@@ -13,7 +13,6 @@ class ExamService:
         pass
 
 
-
     def get_prompt(self, context):
         """
         Gets the message
@@ -32,7 +31,6 @@ class ExamService:
             context=context,
             json_format='[\n{\n"question": "السؤال",\n"A": "الخيار الأول",\n"B": "الخيار الثاني",\n"C": "الخيار الثالث",\n"D": "الخيار الرابع",\n"answer": "A, B, C, or D"\n},\n\n]'
         )
-
 
         return processed_prompt
 

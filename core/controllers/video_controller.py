@@ -1,5 +1,6 @@
 import os
-
+import re
+import camel_tools.utils.normalize as normalize
 import chromadb
 import httpx
 from chromadb.errors import InvalidCollectionException
@@ -11,6 +12,10 @@ from core.services.downloading_service import DownloadingService
 from core.services.embedding_service import EmbeddingService
 from core.services.transcribing_service import TranscribingService
 from core.settings import Settings
+from camel_tools.utils import normalize
+from pyarabic.araby import strip_tashkeel, strip_tatweel
+from camel_tools.tokenizers.word import simple_word_tokenize
+
 
 settings = Settings()
 
@@ -65,11 +70,18 @@ class VideoController:
             # Notify the frontend that
             self._update_frontend_status("transcribed")
 
+            preprocess_text = self._preprocess_arabic_text(saved_transcript)
+            preprocess_text_path = settings.STORAGE_PATH + "temp/" + self.video_id[3:].replace("/", "") + ".txt"
+            # Save the transcript content to a temporary file
+            with open(preprocess_text_path, "w") as temp_file:
+                temp_file.write(preprocess_text)
+            
             # Embed the transcript
             EmbeddingService().embed_transcript(
                 chrome_client=self.chroma_client,
                 namespace_id=self.video_id,
-                text_file=transcript_file,
+                text_file=preprocess_text_path,
+                video_title=title,
             )
 
             # Notify the frontend that the video has been embedded
@@ -104,3 +116,14 @@ class VideoController:
                 },
                 headers={"Authorization": "Bearer " + settings.LARAVEL_API_KEY},
             )
+
+    def _preprocess_arabic_text(self, text):
+        text = strip_tashkeel(text)
+        text = strip_tatweel(text)
+        text = normalize.normalize_alef_ar(text)        
+        text = re.sub(r'\s+', ' ', text).strip()
+        text = re.sub(r'@#$٪^&*[{}[\]""",]', '', text)
+        text = re.sub(r'[A-Za-z]', '', text)
+        text =simple_word_tokenize(text)
+        text= ' '.join(text)
+        return text

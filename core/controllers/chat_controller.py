@@ -18,7 +18,7 @@ class ChatController:
             params={
                 "decoding_method": "greedy",
                 "max_new_tokens": 500,
-                "repetition_penalty": 1.2
+                "repetition_penalty": 1.1
             },
             space_id=settings.WATSONX_SPACE_ID
         )

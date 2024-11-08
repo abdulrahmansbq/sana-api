@@ -1,7 +1,12 @@
+import re
+import camel_tools.utils.normalize as normalize
 from langchain_ibm import WatsonxLLM
 from core.services.chunking_service import ChunkingService
 from core.services.exam_service import ExamService
 from core.settings import Settings
+from camel_tools.utils import normalize
+from pyarabic.araby import strip_tashkeel, strip_tatweel
+from camel_tools.tokenizers.word import simple_word_tokenize
 
 settings = Settings()
 
@@ -25,7 +30,7 @@ class ExamController:
             params={
                 "decoding_method": "greedy",
                 "max_new_tokens": 500,
-                "repetition_penalty": 1.2
+                "repetition_penalty": 1.1
             },
             space_id=settings.WATSONX_SPACE_ID
         )
@@ -39,7 +44,8 @@ class ExamController:
 
         exam_service = ExamService()
 
-        docs = ChunkingService().chunkify_text(transcript=self.transcript, chunking_mode=ChunkingService.CHUNKING_FROM_TEXT)
+
+        docs = ChunkingService().chunkify_text(transcript=self.transcript, chunking_mode=ChunkingService.CHUNKING_FROM_TEXT, chunk_size=1000, chunk_overlap=50)
 
         for doc in docs:
             prompt = exam_service.get_prompt(doc.page_content)

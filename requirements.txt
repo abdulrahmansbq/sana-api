@@ -30,3 +30,5 @@ jsonschema~=4.23.0
 openai==0.28
 selenium
 webdriver-manager
+camel_tools
+pyarabic
