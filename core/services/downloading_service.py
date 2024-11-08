@@ -26,9 +26,8 @@ class DownloadingService:
         video = self.video_id
         video_url = f"https://www.youtube.com/watch?v={video}"
         
-        # Set up Selenium options
         chrome_options = Options()
-        chrome_options.binary_location = "/usr/bin/google-chrome"  # Specify the Chrome binary location
+        chrome_options.binary_location = "/usr/bin/google-chrome"
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--no-sandbox")
@@ -73,8 +72,13 @@ class DownloadingService:
                     }
                 ],
                 "http_headers": {
-                    "User-Agent": chrome_options.arguments[-1]
+                    "User-Agent": chrome_options.arguments[-1],
+                    "Accept-Language": "en-US,en;q=0.9",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Connection": "keep-alive",
+                    "Upgrade-Insecure-Requests": "1"
                 },
+                "cookiefile": "/home/cookies.txt"  # Update with path to your exported cookies file
             }
 
             with YoutubeDL(ydl_opts) as ydl:
