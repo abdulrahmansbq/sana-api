@@ -38,28 +38,42 @@ class VideoController:
             pass
 
         try:
-            audio_file = DownloadingService(self.video_id[3:].replace("/", "")).download()
+            # Download the audio
+            downloader = DownloadingService(self.video_id[3:].replace("/", ""))
+            # Download the audio and get both file path and title
+            audio_data = downloader.download()
+            # Access the file path and title from the returned dictionary
+            file_path = audio_data.get("file_path")
+            title = audio_data.get("title")
+            duration = audio_data.get("duration")
+            duration_seconds = audio_data.get("duration_seconds")
+
+            # Notify the frontend that the audio has been downloaded
             self._update_frontend_status("downloaded")
 
-           
+            # Transcribe the audio
             transcript_file = TranscribingService(
-                audio_file=audio_file,
+                audio_file=file_path,
                 file_name=self.video_id,
             ).transcribe(service_provider="whisper-api")
             
+            # Open the transcript file and read its contents
             opened_transcript = open(transcript_file, "r")
             saved_transcript = opened_transcript.read()
             opened_transcript.close()
         
+            # Notify the frontend that
             self._update_frontend_status("transcribed")
 
+            # Embed the transcript
             EmbeddingService().embed_transcript(
                 chrome_client=self.chroma_client,
                 namespace_id=self.video_id,
                 text_file=transcript_file,
             )
 
-            self._update_frontend_status("completed", saved_transcript)
+            # Notify the frontend that the video has been embedded
+            self._update_frontend_status("completed", saved_transcript, title, duration_seconds)
 
         except DownloadingException | EmbeddingException | TranscribingException as e:
             self._update_frontend_status("failed")
@@ -73,7 +87,7 @@ class VideoController:
         os.remove(settings.STORAGE_PATH + "temp/" + self.video_id[3:].replace("/", "") + ".txt")
         os.remove(settings.STORAGE_PATH + "temp/" + self.video_id[3:].replace("/", "") + ".mp3")
 
-    def _update_frontend_status(self, status, transcript=None):
+    def _update_frontend_status(self, status, transcript=None, title=None, duration=None):
         """
         Notifies the frontend
 
@@ -85,6 +99,8 @@ class VideoController:
                 json={
                     "status": status,
                     "transcript": transcript,
+                    "title": title,
+                    "duration": duration,
                 },
                 headers={"Authorization": "Bearer " + settings.LARAVEL_API_KEY},
             )
