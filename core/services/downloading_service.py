@@ -63,7 +63,7 @@ class DownloadingService:
 
             ydl_opts = {
                 "format": "bestaudio/best",
-                "outtmpl": settings.STORAGE_PATH + f"temp/{video}.mp3",
+                "outtmpl": settings.STORAGE_PATH + f"temp/{video}",
                 "postprocessors": [
                     {
                         "key": "FFmpegExtractAudio",
