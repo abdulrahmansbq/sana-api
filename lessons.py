@@ -35,7 +35,7 @@ async def main():
     chroma_client = chromadb.PersistentClient(path=settings.STORAGE_PATH + "chroma/")
 
     # Path to the transcript file
-    transcript_file = "lesson1.txt"
+    transcript_file = "lesson.txt"
     namespace_id = transcript_file
     video_title = "Lesson 1 Video Title"  # Add the actual title of the video
 
