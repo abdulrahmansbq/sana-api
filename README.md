@@ -84,14 +84,33 @@ pip install -r requirements.txt
    ```
 9. Now you can access the web app from your browser.
 10. Enjoy!
-    
+
+### Evaluation of Summrizing and Question Answer
+
+## QAPromptAndEval.ipynb 
+- This notebook includes the setup and evaluation process for generating and evaluating summaries and multiple-choice questions (MCQs) based on Arabic text content. Key components in this notebook include:
+
+1. Text Preprocessing: Prepares the input Arabic text for effective summarization.
+2. Summarization Prompt: Utilizes a prompt to condense Arabic text into concise summaries using specified parameters.
+3. Question Generation Prompt: Formulates MCQs based on the summarized content with varying difficulty levels.
+4. Evaluation Metrics: Measures the quality of summaries based on metrics like content preservation, linguistic integrity, and readability.
+5. Detailed Score Analysis: Provides JSON-formatted evaluation results with scores for each generated question, including overall score, format, language, and option analysis.
+
+## RAGEval.ipynb
+- This notebook extends the evaluation capabilities with more advanced assessments and an integration of multiple models for Arabic text processing. It includes:
+
+1. Model Setup: Configures and initializes two models (model_1 and model_2), which are used for generating responses based on specific parameters such as decoding_method, max_new_tokens, and repetition_penalty.
+2. Embedding-Based Search (Proximity Search): A proximity search method that utilizes BERT embeddings for finding contextually similar answers within a dataset, enabling more accurate and relevant responses.
+3. Prompt Construction: Constructs detailed prompts using predefined text inputs (prompt_input1 and prompt_input2) along with dynamically input questions, which are processed by the model to generate context-aware responses.
+4. Output Evaluation: Evaluates and displays generated responses to validate the relevance and accuracy of answers produced by the models.
+
 ## Usage
 
 Once the server is running, you can access the API endpoints from your Laravel application to interact with the allam and preprocess the data before sending it to the allam model.
 
 ## Team
 
-- **DR.Eid Albalawi** - Assistant Professor KFU, Team Leader
+- **Dr.Eid Albalawi** - Assistant Professor KFU, Team Leader
 - **Ibrahim Alnabhan** - Data Analyst & Project Specialist
 - **Abdulrahman Alsubayq** - Software Engineer & Cybersecurity Specialist
 - **Hasan Alshikh** - Software Engineer & AI Engineer
