@@ -35,9 +35,9 @@ async def main():
     chroma_client = chromadb.PersistentClient(path=settings.STORAGE_PATH + "chroma/")
 
     # Path to the transcript file
-    transcript_file = "lesson2.txt"
+    transcript_file = "lesson3.txt"
     namespace_id = transcript_file
-    video_title = "Lesson 2 Video Title"  # Add the actual title of the video
+    video_title = "Lesson 3 Video Title"  # Add the actual title of the video
 
     # Initialize the EmbeddingService with BERT
     embedding_service = EmbeddingService()
