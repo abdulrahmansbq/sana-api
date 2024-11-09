@@ -85,7 +85,7 @@ pip install -r requirements.txt
 9. Now you can access the web app from your browser.
 10. Enjoy!
 
-### Evaluation of Summrizing and Question Answer
+### Evaluation of Summarizing and Question Answer
 
 ## QAPromptAndEval.ipynb 
 - This notebook includes the setup and evaluation process for generating and evaluating summaries and multiple-choice questions (MCQs) based on Arabic text content. Key components in this notebook include:
