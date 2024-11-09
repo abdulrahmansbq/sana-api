@@ -14,8 +14,8 @@ Welcome to the GitHub repository of **SANA TEAM**, crafted for the **ALLAM** hac
 
 SANA is built with two primary components:
 
-FastAPI (Python) - A RESTful API that processes data with ALLAM LLM and interacts with the front-end. (Back-end)
-Web Application (Laravel) - A web application that interacts with the API. (Front-end)
+1. FastAPI (Python) - A RESTful API that processes data with ALLAM LLM and interacts with the front-end. (Back-end)
+2. Web Application (Laravel) - A web application that interacts with the API. (Front-end)
 
 Follow these steps to set up the API:
 ### Prerequisites
