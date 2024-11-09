@@ -54,7 +54,7 @@ pip install -r requirements.txt
     uvicorn main:app --host 0.0.0.0 --port 8000
     ```
 4.  Now you should install the Laravel project to interact with the API.
-5.  Clone the repository:
+5.  Clone the repository: https://github.com/hsndev18/sana_web For the web application.
     ```bash
     git clone https://github.com/hsndev18/sana_web
     ```
