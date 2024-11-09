@@ -78,7 +78,7 @@ class DownloadingService:
                     "Connection": "keep-alive",
                     "Upgrade-Insecure-Requests": "1"
                 },
-                # "cookiefile": "/home/cookies.txt"  # Update with path to your exported cookies file
+                "cookiefile": "/home/cookies.txt"  # Update with path to your exported cookies file
             }
 
             with YoutubeDL(ydl_opts) as ydl:
