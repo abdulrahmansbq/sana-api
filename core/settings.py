@@ -8,6 +8,7 @@ dotenv_path = join(dirname(__file__), "..", ".env")
 load_dotenv(dotenv_path)
 
 
+# Load the environment variables
 class Settings(BaseSettings):
     APP_NAME: str = os.environ.get("APP_NAME")
     WHISPER_DEVICE: str = os.environ.get("WHISPER_DEVICE")

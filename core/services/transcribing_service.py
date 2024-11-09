@@ -8,6 +8,7 @@ settings = Settings()
 
 
 class TranscribingService:
+    # Transcribing modes
     TRANSCRIBING_MODE_STORE = 1
     TRANSCRIBING_MODE_RETURN = 2
 
@@ -19,6 +20,7 @@ class TranscribingService:
         self.file_name = file_name
         self.openai_client = Audio()
 
+    # Transcribe the audio file
     def transcribe(self, service_provider: str = "whisper"):
         """
         Transcribes the audio file
@@ -32,6 +34,7 @@ class TranscribingService:
         else:
             raise TranscribingException("Service provider is not supported")
 
+    # Transcribe the audio file with whisper
     def _transcribe_with_whisper(self):
         """
         Transcribes the audio file using whisper
@@ -47,6 +50,7 @@ class TranscribingService:
             return self._store_in_text(transcript)
         return transcript
 
+    # Transcribe the audio file with whisper api
     def _transcribe_with_whisper_api(self):
         """
         Transcribes the audio file using whisper api
@@ -65,6 +69,7 @@ class TranscribingService:
             return self._store_in_text(transcript)
         return transcript
 
+    # Store the transcript in a text file
     def _store_in_text(self, content):
         """
         Stores the transcript in a text file
@@ -74,7 +79,16 @@ class TranscribingService:
         """
         print(content)
         with open(
-            settings.STORAGE_PATH + "temp/" + self.file_name[3:].replace("/", "")+ ".txt", "w"
+            settings.STORAGE_PATH
+            + "temp/"
+            + self.file_name[3:].replace("/", "")
+            + ".txt",
+            "w",
         ) as text_file:
             text_file.write(content)
-        return settings.STORAGE_PATH + "temp/" + self.file_name[3:].replace("/", "") + ".txt"
+        return (
+            settings.STORAGE_PATH
+            + "temp/"
+            + self.file_name[3:].replace("/", "")
+            + ".txt"
+        )

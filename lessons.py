@@ -1,3 +1,6 @@
+import asyncio  # Add this import for async operations
+
+# Existing imports
 import tempfile
 from uuid import uuid4
 
@@ -7,6 +10,7 @@ from chromadb.errors import InvalidCollectionException
 from langchain_chroma import Chroma
 from transformers import BertModel, BertTokenizer
 
+from core.controllers.exam_controller import ExamController
 from core.controllers.snap_controller import SnapController
 from core.services.chunking_service import ChunkingService
 from core.services.embedding_service import EmbeddingService
@@ -15,63 +19,74 @@ from core.settings import Settings
 
 async def _generate_snaps(namespace_id, transcript, namespace_type):
     # Generate snaps using the SnapController
-    snaps = await SnapController(namespace_id, saved_transcript, "lesson").generate()
-    print(snaps)
+    await SnapController(namespace_id, transcript, namespace_type).generate()
 
 
-# Load settings
-settings = Settings()
+async def _generate_exam(namespace_id, transcript, namespace_type):
+    # Generate exam using the ExamController
+    await ExamController(namespace_id, namespace_type, transcript).generate()
 
-# Define your persistent Chroma client with a specified storage path
-chroma_client = chromadb.PersistentClient(path=settings.STORAGE_PATH + "chroma/")
 
-# Path to the transcript file
-transcript_file = "lesson1.txt"
-namespace_id = transcript_file
-video_title = "Lesson 1 Video Title"  # Add the actual title of the video
+async def main():
+    # Load settings
+    settings = Settings()
 
-# Initialize the EmbeddingService with BERT
-embedding_service = EmbeddingService()
+    # Define your persistent Chroma client with a specified storage path
+    chroma_client = chromadb.PersistentClient(path=settings.STORAGE_PATH + "chroma/")
 
-# Read and process the transcript file
-with open(settings.STORAGE_PATH + transcript_file, "r") as opened_transcript:
-    saved_transcript = opened_transcript.read()
+    # Path to the transcript file
+    transcript_file = "lesson1.txt"
+    namespace_id = transcript_file
+    video_title = "Lesson 1 Video Title"  # Add the actual title of the video
 
-# Check if the namespace already exists
-try:
-    collection = chroma_client.get_collection(namespace_id)
-    print(f"Error: Namespace '{namespace_id}' already exists.")
-except chromadb.errors.InvalidCollectionException:
-    print("Namespace does not exist; proceeding with embedding.")
+    # Initialize the EmbeddingService with BERT
+    embedding_service = EmbeddingService()
 
-    # Save transcript content to a temporary file
-    with tempfile.NamedTemporaryFile(
-        delete=False, mode="w", encoding="utf-8"
-    ) as temp_file:
-        temp_file.write(saved_transcript)
-        temp_file_path = temp_file.name
+    # Read and process the transcript file
+    with open(settings.STORAGE_PATH + transcript_file, "r") as opened_transcript:
+        saved_transcript = opened_transcript.read()
 
-    # Chunk the text using the path of the temporary file
-    docs = ChunkingService().chunkify_text(
-        transcript_file=temp_file_path, chunk_size=400, chunk_overlap=100
-    )
+    # Check if the namespace already exists
+    try:
+        collection = chroma_client.get_collection(namespace_id)
+        print(f"Error: Namespace '{namespace_id}' already exists.")
+    except chromadb.errors.InvalidCollectionException:
+        print("Namespace does not exist; proceeding with embedding.")
 
-    # Generate embeddings using the updated EmbeddingService
-    vector_embeddings, vector_documents, vector_metadatas, vector_ids = (
-        embedding_service.generate_embeddings(texts=docs, video_title=video_title)
-    )
+        # Save transcript content to a temporary file
+        with tempfile.NamedTemporaryFile(
+            delete=False, mode="w", encoding="utf-8"
+        ) as temp_file:
+            temp_file.write(saved_transcript)
+            temp_file_path = temp_file.name
 
-    # Get or create the collection in ChromaDB
-    collection = chroma_client.get_or_create_collection(name=namespace_id)
+        # Chunk the text using the path of the temporary file
+        docs = ChunkingService().chunkify_text(
+            transcript_file=temp_file_path, chunk_size=400, chunk_overlap=100
+        )
 
-    # Add the vectors, documents, and metadata to the ChromaDB collection
-    collection.add(
-        embeddings=vector_embeddings,
-        documents=vector_documents,
-        metadatas=vector_metadatas,
-        ids=vector_ids,
-    )
+        # Generate embeddings using the updated EmbeddingService
+        vector_embeddings, vector_documents, vector_metadatas, vector_ids = (
+            embedding_service.generate_embeddings(texts=docs, video_title=video_title)
+        )
 
-    await _generate_snaps(namespace_id, saved_transcript, "lesson")
+        # Get or create the collection in ChromaDB
+        collection = chroma_client.get_or_create_collection(name=namespace_id)
 
-    print("Transcript embedding completed with namespace ID:", namespace_id)
+        # Add the vectors, documents, and metadata to the ChromaDB collection
+        collection.add(
+            embeddings=vector_embeddings,
+            documents=vector_documents,
+            metadatas=vector_metadatas,
+            ids=vector_ids,
+        )
+
+        # Await _generate_snaps in the asynchronous main function
+        await _generate_snaps(namespace_id, saved_transcript, "lesson")
+        await _generate_exam(namespace_id, saved_transcript, "lesson")
+
+        print("Transcript embedding completed with namespace ID:", namespace_id)
+
+
+# Run the main function in an asynchronous event loop
+asyncio.run(main())

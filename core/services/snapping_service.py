@@ -14,6 +14,7 @@ class SnappingService:
     def __init__(self):
         pass
 
+    # Get the prompt
     def get_prompt(self, context):
         """
         Gets the message
@@ -22,21 +23,25 @@ class SnappingService:
         :return: The message
         """
 
+        # Open the prompt file
         prompt_file = open(settings.PROMPTS_PATH + "snap_prompt.txt", "r")
 
+        # Read the prompt file
         prompt = prompt_file.read()
 
+        # Close the prompt file
         template = PromptTemplate.from_template(prompt)
 
+        # Process the prompt
         processed_prompt = template.format(
             context=context,
             json_format='{{\n"sentences": ["summary sentence 1", "summary sentence 2", "summary sentence 3", ...]\n}}',
         )
 
-        # print(processed_prompt)
-
+        # Return the processed prompt
         return processed_prompt
 
+    # Validate the JSON that was sent
     def validate_json(self, data):
         schema = {
             "type": "object",
@@ -60,6 +65,7 @@ class SnappingService:
         except ValidationError as e:
             return False
 
+    # Send the snaps to the frontend
     def send_to_frontend(self, namespace_id, namespace_type, snaps):
         with httpx.Client(verify=False) as client:
             client.post(
@@ -71,4 +77,3 @@ class SnappingService:
                 },
                 headers={"Authorization": "Bearer " + settings.LARAVEL_API_KEY},
             )
-        

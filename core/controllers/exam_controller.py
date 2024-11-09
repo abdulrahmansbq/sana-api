@@ -1,25 +1,20 @@
 import re
+
 import camel_tools.utils.normalize as normalize
+from camel_tools.tokenizers.word import simple_word_tokenize
+from camel_tools.utils import normalize
 from langchain_ibm import WatsonxLLM
+from pyarabic.araby import strip_tashkeel, strip_tatweel
+
 from core.services.chunking_service import ChunkingService
 from core.services.exam_service import ExamService
 from core.settings import Settings
-from camel_tools.utils import normalize
-from pyarabic.araby import strip_tashkeel, strip_tatweel
-from camel_tools.tokenizers.word import simple_word_tokenize
 
 settings = Settings()
 
 
-
-
 class ExamController:
-    def __init__(
-            self,
-            namespace_id,
-            namespace_type,
-            transcript
-    ):
+    def __init__(self, namespace_id, namespace_type, transcript):
         self.namespace_id = namespace_id
         self.namespace_type = namespace_type
         self.transcript = transcript
@@ -30,11 +25,12 @@ class ExamController:
             params={
                 "decoding_method": "greedy",
                 "max_new_tokens": 500,
-                "repetition_penalty": 1.1
+                "repetition_penalty": 1.1,
             },
-            space_id=settings.WATSONX_SPACE_ID
+            space_id=settings.WATSONX_SPACE_ID,
         )
 
+    # Generate the exam
     async def generate(self):
         """
         Generates the questions
@@ -44,9 +40,15 @@ class ExamController:
 
         exam_service = ExamService()
 
+        # Preprocess the text
+        docs = ChunkingService().chunkify_text(
+            transcript=self.transcript,
+            chunking_mode=ChunkingService.CHUNKING_FROM_TEXT,
+            chunk_size=1000,
+            chunk_overlap=50,
+        )
 
-        docs = ChunkingService().chunkify_text(transcript=self.transcript, chunking_mode=ChunkingService.CHUNKING_FROM_TEXT, chunk_size=1000, chunk_overlap=50)
-
+        # Generate questions
         for doc in docs:
             prompt = exam_service.get_prompt(doc.page_content)
 
@@ -57,6 +59,11 @@ class ExamController:
             if not exam_service.validate_json(questions):
                 continue
 
-            exam_service.send_to_frontend(questions=questions, namespace_id=self.namespace_id, namespace_type=self.namespace_type)
+            # Send the questions to the frontend
+            exam_service.send_to_frontend(
+                questions=questions,
+                namespace_id=self.namespace_id,
+                namespace_type=self.namespace_type,
+            )
 
         return "Questions generated successfully"

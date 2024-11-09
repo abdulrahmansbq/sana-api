@@ -29,6 +29,7 @@ class SnapController:
             space_id=settings.WATSONX_SPACE_ID,
         )
 
+    # Generate the snaps
     async def generate(self):
         """
         Generates the snaps
@@ -36,10 +37,13 @@ class SnapController:
         :return:
         """
 
+        # Initialize the SnappingService
         snapping_service = SnappingService()
 
+        # Preprocess the text
         preprocess_text = self._preprocess_arabic_text(self.transcript)
 
+        # Chunk the text
         docs = ChunkingService().chunkify_text(
             transcript=preprocess_text,
             chunking_mode=ChunkingService.CHUNKING_FROM_TEXT,
@@ -47,16 +51,23 @@ class SnapController:
             chunk_overlap=50,
         )
 
+        # Generate snaps
         for doc in docs:
+            # Get the prompt
             prompt = snapping_service.get_prompt(doc.page_content)
 
+            # Generate the snaps
             snaps = self.model(prompt)
+
+            # Check if the snaps are empty
             if not snaps:
                 continue
 
+            # Validate the snaps
             if not snapping_service.validate_json(snaps):
                 continue
 
+            # Send the snaps to the frontend
             snapping_service.send_to_frontend(
                 snaps=snaps,
                 namespace_id=self.namespace_id,
@@ -64,6 +75,7 @@ class SnapController:
             )
         return "Snaps generated successfully"
 
+    # Preprocess the Arabic text
     def _preprocess_arabic_text(self, text):
         text = strip_tatweel(text)
         text = re.sub(r"\s+", " ", text).strip()

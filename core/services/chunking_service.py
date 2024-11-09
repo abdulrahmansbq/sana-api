@@ -29,6 +29,7 @@ class ChunkingService:
         :return:
         """
 
+        # Preprocess the text
         if chunking_mode == self.CHUNKING_FROM_FILE:
             loader = TextLoader(transcript_file)
             documents = loader.load()

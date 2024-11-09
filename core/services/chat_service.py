@@ -33,14 +33,17 @@ class ChatService:
         )
         self.collection = chroma_client.get_collection("yt-" + namespace_id)
 
+    # Get the prompt
     def get_prompt(self):
         """
         Responds to the chat message
 
         :return:
         """
+        # Perform proximity search
         context, video_title = self.proximity_search(self.message)
-        prompt = self._prepare_prompt(context,video_title)
+        # Prepare the prompt
+        prompt = self._prepare_prompt(context, video_title)
         return prompt
 
     def proximity_search(self, question: str, k: int = 3) -> str:
@@ -71,10 +74,11 @@ class ChatService:
         context = " \n ".join(documents)
         # get the metadatas and get the video_title
         metadatas = query_result["metadatas"][0]
-        video_title = metadatas[0]['video_title']
+        video_title = metadatas[0]["video_title"]
 
         return context, video_title
 
+    # Prepare the prompt
     def _prepare_prompt(self, context, video_title):
         """
         Gets the message
@@ -86,5 +90,7 @@ class ChatService:
             prompt = prompt_file.read()
 
         template = PromptTemplate.from_template(prompt)
-        processed_prompt = template.format(context=context, question=self.message, lesson_title=video_title)
+        processed_prompt = template.format(
+            context=context, question=self.message, lesson_title=video_title
+        )
         return processed_prompt

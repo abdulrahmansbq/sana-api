@@ -12,7 +12,7 @@ class ExamService:
     def __init__(self):
         pass
 
-
+    # Get the prompt
     def get_prompt(self, context):
         """
         Gets the message
@@ -21,20 +21,25 @@ class ExamService:
         :return: The message
         """
 
+        # Open the prompt file
         prompt_file = open(settings.PROMPTS_PATH + "exam_prompt.txt", "r")
 
+        # Read the prompt file
         prompt = prompt_file.read()
 
+        # Close the prompt file
         template = PromptTemplate.from_template(prompt)
 
+        # Process the prompt
         processed_prompt = template.format(
             context=context,
             json_format='[\n{\n"question": "السؤال",\n"A": "الخيار الأول",\n"B": "الخيار الثاني",\n"C": "الخيار الثالث",\n"D": "الخيار الرابع",\n"answer": "A, B, C, or D"\n},\n\n]'
         )
 
+        # Return the processed prompt
         return processed_prompt
 
-
+    # Validate the JSON that was sent
     def validate_json(self, data):
         schema = {
             "type": "array",
@@ -64,6 +69,7 @@ class ExamService:
         except ValidationError as e:
             return False
 
+    # Send the questions to the frontend
     def send_to_frontend(self, namespace_id, namespace_type, questions):
         with httpx.Client(verify=False) as client:
             client.post(
